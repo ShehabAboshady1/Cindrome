@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cindrome - <%= media.title %>
+    </title>
+    <link rel="icon" type="image/png" href="/assets/logos/cindrome-logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/hero.css">
+    <link rel="stylesheet" href="/css/lists-carousel.css">
+    <link rel="stylesheet" href="/css/carousel.css">
+    <link rel="stylesheet" href="/css/pages/details.css">
+    <link rel="stylesheet" href="/css/reviews.css">
+    <link rel="stylesheet" href="/css/modals.css">
+    <link rel="stylesheet" href="/css/cards.css">
+</head>
+
+<body class="<%= locals.user ? 'logged-in' : 'logged-out' %>">
+    <header>
+        <%- include("partials/navbar.ejs") %>
+    </header>
+
+    <main class="details-page">
+        <section class="details-hero"
+            style="background-image: linear-gradient(rgba(8,15,14,0.88), rgba(8,15,14,0.88)), url('<%= media.backdrop %>'); background-position: center; background-size: cover;">
+            <div class="nav-container hero-content-left">
+                <div class="poster-wrapper">
+                    <img src="<%= media.poster %>" alt="<%= media.title %>" class="details-poster">
+                </div>
+
+                <div class="media-info-left">
+                    <h1 class="media-title">
+                        <%= media.title %> <span class="release-year">
+                                <%= media.year %>
+                            </span>
+                    </h1>
+
+                    <div class="meta-inline">
+                        <span class="badge-tag">
+                            <%= media.badge %>
+                        </span>
+                        <span class="meta-dot">•</span>
+                        <span class="rating-star">
+                            <%= media.score %> <i>/ 10</i>
+                        </span>
+                        <span class="meta-dot">•</span>
+                        <span>
+                            <%= media.duration %>
+                        </span>
+                        <span class="meta-dot">•</span>
+                        <span>
+                            <%= media.genres %>
+                        </span>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary log-btn" id="openLogModal">+ Log</button>
+
+                        <button type="button"
+                            class="btn btn-secondary watchlist-btn hero-watchlist-btn <%= media && locals.watchlistMap && locals.watchlistMap.includes(media.id.toString()) ? 'added' : '' %>"
+                            title="Toggle Watchlist"
+                            onclick="toggleWatchlist(this, <%= media.id %>, '<%= media.type %>')">
+                            <span class="default-content"><i class="fa-regular fa-bookmark"></i> Watchlist</span>
+                            <span class="added-content"><i class="fa-solid fa-minus" style="margin-right: 6px;"></i>
+                                Added</span>
+                        </button>
+                        <button type="button"
+                            class="btn btn-icon-only like-btn-hero <%= locals.likedMediaMap && locals.likedMediaMap.includes(media.id.toString()) ? 'liked' : '' %>"
+                            title="Like" onclick="toggleLike(this, <%= media.id %>, '<%= media.type %>')">
+                            <i
+                                class="<%= locals.likedMediaMap && locals.likedMediaMap.includes(media.id.toString()) ? 'fa-solid' : 'fa-regular' %> fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="nav-container details-content">
+            <div class="detail-section details-panel" id="sec-overview">
+                <h3 class="section-title">Overview</h3>
+                <p class="short-summary">
+                    <%= media.overview %>
+                </p>
+                <div class="mini-details-grid">
+                    <div class="mini-detail-item">
+                        <span class="detail-label">
+                            <%= media.creatorLabel %>
+                        </span>
+                        <span class="detail-value">
+                            <%= media.creator %>
+                        </span>
+                    </div>
+                    <div class="mini-detail-item">
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value">
+                            <%= media.status %>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <% if (media.type==='tv' && media.episodes && media.episodes.length> 0) { %>
+                <div class="detail-section details-panel" id="sec-episodes" data-tv-id="<%= media.id %>">
+                    <h3 class="section-title">Episodes</h3>
+
+                    <div class="seasons-sub-nav">
+                        <% for (let i=1; i <=Math.min(media.seasonsCount, 10); i++) { %>
+                            <button type="button" class="season-btn <%= i === 1 ? 'active' : '' %>"
+                                data-season="<%= i %>">Season <%= i %></button>
+                            <% } %>
+                    </div>
+
+                    <div class="season-content active">
+                        <div class="minimal-ep-list" id="episodesListContainer">
+                            <% media.episodes.forEach(ep=> { %>
+                                <a href="javascript:void(0)" class="ep-row ep-link">
+                                    <span class="ep-num">E<%= ep.episode_number < 10 ? '0' + ep.episode_number :
+                                            ep.episode_number %></span>
+                                    <div class="ep-info-flex">
+                                        <span class="ep-title">
+                                            <%= ep.name %>
+                                        </span>
+                                        <span class="ep-time">
+                                            <%= ep.runtime ? ep.runtime + ' min' : '45 min' %>
+                                        </span>
+                                    </div>
+                                </a>
+                                <% }); %>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+
+                    <div class="detail-section details-panel" id="sec-cast">
+                        <div class="section-header-flex">
+                            <h3 class="section-title">Cast</h3>
+                            <div class="carousel-controls">
+                                <button class="carousel-btn prev-btn" id="castPrev" aria-label="Previous">❮</button>
+                                <button class="carousel-btn next-btn" id="castNext" aria-label="Next">❯</button>
+                            </div>
+                        </div>
+
+                        <div class="cast-carousel-wrapper">
+                            <div class="cast-carousel" id="castCarousel">
+                                <% if (media.cast && media.cast.length> 0) { %>
+                                    <% media.cast.forEach(actor=> { %>
+                                        <article class="cast-card">
+                                            <img src="<%= actor.image %>" alt="<%= actor.name %>" class="cast-img">
+                                            <div class="cast-info">
+                                                <strong class="actor-name">
+                                                    <%= actor.name %>
+                                                </strong>
+                                                <span class="character-name">
+                                                    <%= actor.character %>
+                                                </span>
+                                            </div>
+                                        </article>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <p style="color: var(--text-muted); padding: 10px;">Cast details not
+                                                    available.</p>
+                                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section details-panel" id="sec-reviews">
+                        <div class="reviews-section-header">
+                            <div class="reviews-section-heading">
+                                <h3 class="reviews-title">Reviews</h3>
+                            </div>
+                            <div class="reviews-section-actions">
+                                <div class="carousel-controls">
+                                    <button class="carousel-btn" id="reviewPrev" aria-label="Previous reviews"
+                                        type="button">&#10094;</button>
+                                    <button class="carousel-btn" id="reviewNext" aria-label="Next reviews"
+                                        type="button">&#10095;</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="reviews-list" id="reviewsRow">
+                            <% if (media.reviews && media.reviews.length> 0) { %>
+                                <% media.reviews.forEach(review=> { %>
+                                    <article class="minimal-review-card">
+                                        <div class="minimal-card-header">
+                                            <div class="header-left-stack">
+                                                <a href="/details?id=<%= media.id %>&type=<%= media.type %>"
+                                                    class="review-poster-link" title="<%= media.title %>">
+                                                    <img src="<%= media.poster %>" class="review-micro-poster"
+                                                        alt="<%= media.title %>">
+                                                </a>
+                                                <div class="review-info-content">
+                                                    <div class="review-title-row">
+                                                        <a href="/details?id=<%= media.id %>&type=<%= media.type %>"
+                                                            class="review-media-title">
+                                                            <%= media.title %>
+                                                        </a>
+                                                        <% if (review.season_number && review.episode_number) { %>
+                                                            <span class="review-context-pill highlight">
+                                                                S<%= review.season_number < 10 ? '0' +
+                                                                    review.season_number : review.season_number %>
+                                                                    E<%= review.episode_number < 10 ? '0' +
+                                                                        review.episode_number : review.episode_number %>
+                                                            </span>
+                                                            <% } else if (review.season_number) { %>
+                                                                <span class="review-context-pill highlight">Season <%=
+                                                                        review.season_number %></span>
+                                                                <% } else { %>
+                                                                    <span class="review-context-pill">General
+                                                                        Review</span>
+                                                                    <% } %>
+                                                    </div>
+
+                                                    <div class="review-rating-line">
+                                                        <div class="review-stars-box"
+                                                            title="<%= review.rating || 0 %> Stars">
+                                                            <% const rating=parseFloat(review.rating) || 0; const
+                                                                fullStars=Math.floor(rating); const hasHalf=rating % 1
+                                                                !==0; const emptyStars=5 - Math.ceil(rating); %>
+                                                                <% for (let i=0; i < fullStars; i++) { %>
+                                                                    <span class="star-full">★</span>
+                                                                    <% } %>
+                                                                        <% if (hasHalf) { %>
+                                                                            <span class="star-half">★</span>
+                                                                            <% } %>
+                                                                                <% for (let i=0; i < emptyStars; i++) {
+                                                                                    %>
+                                                                                    <span class="star-empty">★</span>
+                                                                                    <% } %>
+                                                        </div>
+                                                    </div>
+                                                    <div class="review-author-line">
+                                                        <a href="/profile/<%= review.username %>"
+                                                            class="review-avatar-link">
+                                                            <img src="<%= review.avatar_url || '/assets/default-avatar.jpeg' %>"
+                                                                alt="<%= review.username %>" class="review-micro-avatar"
+                                                                onerror="this.src='/assets/default-avatar.jpeg'">
+                                                        </a>
+                                                        <a href="/profile/<%= review.username %>"
+                                                            class="review-author-username">@<%= review.username %></a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <% if (review.has_spoilers) { %>
+                                                <div class="header-right-stack">
+                                                    <span class="spoiler-badge"><i
+                                                            class="fa-solid fa-triangle-exclamation"></i> Spoiler</span>
+                                                </div>
+                                                <% } %>
+                                        </div>
+
+                                        <div class="minimal-card-body">
+                                            <% if (review.review_text && review.review_text.trim() !=='' ) { %>
+                                                <% if (review.has_spoilers) { %>
+                                                    <p class="review-body blurred" onclick="revealSpoiler(this)"
+                                                        data-full-text="<%= review.review_text %>">
+                                                        Click to reveal review containing spoilers.
+                                                    </p>
+                                                    <% } else { %>
+                                                        <p class="review-body">
+                                                            <%= review.review_text %>
+                                                        </p>
+                                                        <% } %>
+                                                            <% } else { %>
+                                                                <p class="review-body"
+                                                                    style="font-style: italic; color: rgba(241,227,200,0.5);">
+                                                                    Logged without a written review.
+                                                                </p>
+                                                                <% } %>
+                                        </div>
+
+                                        <div class="minimal-card-footer">
+                                            <div class="minimal-actions">
+                                                <button
+                                                    class="minimal-btn review-like-btn <%= review.is_liked_by_user ? 'is-liked' : '' %>"
+                                                    data-review-id="<%= review.review_id %>">
+                                                    <i
+                                                        class="<%= review.is_liked_by_user ? 'fa-solid' : 'fa-regular' %> fa-heart"></i>
+                                                    <span class="like-count">
+                                                        <%= review.likes_count || 0 %>
+                                                    </span>
+                                                </button>
+                                                <a href="/review/<%= review.review_id %>" class="minimal-btn">
+                                                    <i class="fa-regular fa-comment"></i>
+                                                    <span class="comment-count">
+                                                        <%= review.comments_count || 0 %>
+                                                    </span>
+                                                </a>
+                                            </div>
+                                            <a href="/review/<%= review.review_id %>" class="minimal-read-link">
+                                                Read More <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                            </a>
+                                        </div>
+                                    </article>
+                                    <% }); %>
+                                        <% } else { %>
+                                            <div
+                                                style="padding: 20px; color: rgba(241, 227, 200, 0.6); font-style: italic; width: 100%;">
+                                                No reviews yet. Be the first to review this!
+                                            </div>
+                                            <% } %>
+                        </div>
+                    </div>
+
+                    <% if (media.recommendations && media.recommendations.length> 0) { %>
+                        <div class="detail-section details-panel" id="sec-more-like-this">
+                            <section class="carousel-section">
+                                <div class="carousel-header">
+                                    <h2 class="carousel-title" style="color: var(--accent-teal, #00b4d8);">
+                                        If You Liked <%= media.title %>
+                                    </h2>
+                                    <div class="carousel-controls">
+                                        <button class="carousel-btn" aria-label="Previous">&#10094;</button>
+                                        <button class="carousel-btn" aria-label="Next">&#10095;</button>
+                                    </div>
+                                </div>
+                                <div class="carousel-track">
+                                    <% media.recommendations.forEach(rec=> { %>
+                                        <div class="content-card">
+                                            <img src="<%= rec.poster %>" alt="<%= rec.title %>" class="card-poster">
+                                            <div class="card-overlay">
+                                                <div class="card-top-row">
+                                                    <span class="type-badge">
+                                                        <%= rec.type %>
+                                                    </span>
+                                                    <div class="rating-box">
+                                                        <span class="rating-label">TMDB</span>
+                                                        <span class="rating-score">⭐ <%= rec.score %></span>
+                                                    </div>
+                                                </div>
+                                                <div class="card-bottom-content">
+                                                    <div class="title-row">
+                                                        <h3 class="card-title" title="<%= rec.title %>">
+                                                            <%= rec.title %>
+                                                        </h3>
+                                                        <span class="age-badge">
+                                                            <%= rec.ageBadge %>
+                                                        </span>
+                                                    </div>
+                                                    <div class="meta-row">
+                                                        <span>
+                                                            <%= rec.subtitle %>
+                                                        </span>
+                                                    </div>
+                                                    <div class="card-actions">
+                                                        <a href="/details?id=<%= rec.id %>&type=<%= rec.mediaType %>"
+                                                            class="btn-details">Details</a>
+                                                        <button
+                                                            class="btn-watchlist <%= locals.watchlistMap && locals.watchlistMap.includes(rec.id.toString()) ? 'added' : '' %>"
+                                                            title="<%= locals.watchlistMap && locals.watchlistMap.includes(rec.id.toString()) ? 'Remove from Watchlist' : 'Toggle Watchlist' %>"
+                                                            onclick="toggleWatchlist(this, <%= rec.id %>, '<%= rec.mediaType %>')">
+                                                            <span class="icon-plus">+</span>
+                                                            <span class="icon-minus">-</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <% }); %>
+                                </div>
+                            </section>
+                        </div>
+                        <% } %>
+        </section>
+    </main>
+
+    <%- include("partials/footer.ejs") %>
+        <%- include("partials/modals/log-modal.ejs") %>
+            <%- include("partials/modals/search-modal.ejs") %>
+
+                <script src="/js/main.js"></script>
+                <script src="/js/modals.js"></script>
+                <script src="/js/carousel.js"></script>
+                <script src="/js/pages/index-page.js"></script>
+                <script src="/js/pages/details-page.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cindrome - Lists</title>
+    <link rel="icon" type="image/png" href="assets/logos/cindrome-logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/mini-card.css">
+    <link rel="stylesheet" href="css/pages/watchlist.css">
+    <link rel="stylesheet" href="css/stars.css">
+    <link rel="stylesheet" href="css/list.css">
+    <link rel="stylesheet" href="css/pages/lists.css">
+    <link rel="stylesheet" href="css/modals.css">
+    <link rel="stylesheet" href="/css/cards.css">
+</head>
+
+<body class="<%= locals.user ? 'logged-in' : 'logged-out' %>">
+    <header>
+        <%- include("partials/navbar.ejs") %>
+    </header>
+
+    <main class="lists-page-wrapper">
+        <div class="lists-header-box">
+            <h1 class="lists-title">Lists</h1>
+            <p class="diary-teal-subtitle">Explore and share amazing collections</p>
+        </div>
+
+        <div class="discover-filter-section">
+            <div class="filter-bar-container">
+                <div class="lists-search-box">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" class="lists-search-input" placeholder="Search lists...">
+                </div>
+
+                <div class="filter-v-divider"></div>
+
+                <details class="css-dropdown" id="listsFilterDropdown">
+                    <summary class="dropdown-selected">
+                        <span class="dropdown-label-text">Popular</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </summary>
+                    <ul class="dropdown-list">
+                        <li class="dropdown-item">Popular</li>
+                        <li class="dropdown-item">Recent</li>
+                        <li class="dropdown-item">Following</li>
+                    </ul>
+                </details>
+            </div>
+        </div>
+
+        <section class="lists-container-box">
+            <div class="container-inner-header">
+                <div class="container-header-flex">
+                    <h2 class="inner-header-title">Community Lists</h2>
+                    <button id="openCreateListBtn" class="create-list-btn">
+                        <i class="fa-solid fa-plus"></i> Create
+                    </button>
+                </div>
+                <hr class="inner-header-hr">
+            </div>
+
+            <div class="lists-grid" id="listsGrid"></div>
+
+            <div id="listsLoader" style="text-align: center; padding: 40px; display: none;">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: var(--accent-teal);"></i>
+            </div>
+
+            <div id="noListsMsg"
+                style="text-align: center; padding: 40px; color: rgba(241, 227, 200, 0.5); display: none;">
+                <i class="fa-solid fa-list-ul" style="font-size: 2.5rem; margin-bottom: 15px;"></i>
+                <p>No lists found.</p>
+            </div>
+        </section>
+
+        <div class="pagination-section" id="paginationSection">
+            <nav class="pagination-container" aria-label="Page navigation" id="paginationContainer"></nav>
+        </div>
+
+        <template id="listCardTemplate">
+            <div class="list-card">
+                <div class="poster-stack" style="cursor: pointer;">
+                    <img src="/assets/posters/default-poster.png" class="stack-poster p1" alt="Poster">
+                    <img src="/assets/posters/default-poster.png" class="stack-poster p2" alt="Poster">
+                    <img src="/assets/posters/default-poster.png" class="stack-poster p3" alt="Poster">
+                    <img src="/assets/posters/default-poster.png" class="stack-poster p4" alt="Poster">
+                </div>
+                <div class="list-info">
+                    <a href="#" class="list-title"></a>
+                    <div class="list-meta">
+                        <div>
+                            <span class="user-badge">By <a href="#" class="list-author-link"
+                                    style="color:inherit;text-decoration:none;"></a></span>
+                            <span class="list-items-count">• <span class="count-num">0</span> Titles</span>
+                        </div>
+                        <div class="list-actions">
+                            <button class="list-action-btn like-btn" title="Like List">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path
+                                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                                    </path>
+                                </svg>
+                                <span class="like-count">0</span>
+                            </button>
+                            <a href="#" class="list-action-btn comment-btn" title="Comments">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path
+                                        d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+                                    </path>
+                                </svg>
+                                <span class="comment-count">0</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </main>
+
+    <%- include("partials/footer.ejs") %>
+        <%- include("partials/modals/list-modal.ejs") %>
+            <%- include("partials/modals/search-modal.ejs") %>
+                <%- include("partials/modals/log-modal.ejs") %>
+
+                    <script src="/js/modals.js"></script>
+                    <script src="/js/pages/lists-page.js"></script>
+</body>
+
+</html>

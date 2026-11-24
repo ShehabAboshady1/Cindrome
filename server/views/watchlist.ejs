@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cindrome - Watchlist</title>
+    <link rel="icon" type="image/png" href="/assets/logos/cindrome-logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/hero.css">
+    <link rel="stylesheet" href="/css/cards.css">
+    <link rel="stylesheet" href="/css/lists-carousel.css">
+    <link rel="stylesheet" href="/css/carousel.css">
+    <link rel="stylesheet" href="/css/pages/watchlist.css">
+    <link rel="stylesheet" href="/css/mini-card.css">
+    <link rel="stylesheet" href="/css/modals.css">
+</head>
+
+<body class="<%= locals.user ? 'logged-in' : 'logged-out' %>">
+    <header>
+        <%- include("partials/navbar.ejs") %>
+    </header>
+
+    <main class="watchlist-main-section">
+        <section class="watchlist-header-section">
+            <h1 class="watchlist-title">Watchlist</h1>
+        </section>
+
+        <section class="watchlist-filter-section" aria-label="Content Filters">
+            <form class="filter-bar-container" role="search" onsubmit="return false;">
+                <div class="filter-search-box">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        aria-hidden="true">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="watchlistSearchInput" placeholder="Search title..."
+                        aria-label="Search title">
+                </div>
+
+                <div class="filter-v-divider" role="separator"></div>
+
+                <fieldset class="type-selector" aria-label="Content Type">
+                    <button class="type-pill active" type="button" data-type="all">All</button>
+                    <button class="type-pill" type="button" data-type="anime">Anime</button>
+                    <button class="type-pill" type="button" data-type="movies">Movies</button>
+                    <button class="type-pill" type="button" data-type="series">Series</button>
+                </fieldset>
+
+                <button class="reset-filter-btn" type="reset" id="watchlistResetBtn" aria-label="Reset Filters"
+                    title="Reset Filters">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                        <path d="M3 3v5h5"></path>
+                    </svg>
+                </button>
+            </form>
+        </section>
+
+        <section class="watchlist-grid-section">
+            <div class="watchlist-grid-container">
+                <div class="grid-header-meta">
+                    <span class="grid-count-text">
+                        <%= typeof watchlistItems !=='undefined' ? watchlistItems.length : 0 %> Titles
+                    </span>
+                </div>
+
+                <div class="watchlist-cards-grid">
+                    <% if (typeof watchlistItems !=='undefined' && watchlistItems.length> 0) { %>
+                        <% watchlistItems.forEach(item=> { %>
+                            <div class="mini-content-card" data-tooltip="<%= item.title %>"
+                                data-type="<%= item.is_anime ? 'anime' : (item.media_type === 'movie' ? 'movies' : 'series') %>"
+                                data-rating="<%= item.rating ? item.rating : 'N/A' %>">
+                                <div class="mini-card-media">
+                                    <% const safePoster=item.poster_path ? 'https://image.tmdb.org/t/p/w500' +
+                                        item.poster_path
+                                        : "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='150' viewBox='0 0 100 150'%3E%3Crect fill='%2311201f' width='100' height='150'/%3E%3Ctext fill='%23718096' font-family='sans-serif' font-size='12' dy='75' dx='20'%3ENo Poster%3C/text%3E%3C/svg%3E"
+                                        ; %>
+
+                                        <img src="<%= safePoster %>" alt="<%= item.title %>" class="mini-card-poster"
+                                            loading="lazy">
+                                        <div class="mini-top-rating">★ <%= item.rating ? item.rating : 'N/A' %>
+                                        </div>
+
+                                        <div class="mini-card-bar">
+                                            <a href="/details?id=<%= item.tmdb_id %>&type=<%= item.media_type %>"
+                                                class="mini-bar-btn btn-info" title="Details">
+                                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
+                                                    stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                                                    stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                                                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                                </svg>
+                                            </a>
+
+                                            <button class="mini-bar-btn btn-add added" title="Remove from Watchlist"
+                                                onclick="toggleWatchlist(this, <%= item.tmdb_id %>, '<%= item.media_type %>')">
+                                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
+                                                    stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                                                    stroke-linejoin="round">
+                                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                                </svg>
+                                            </button>
+
+                                            <button
+                                                class="mini-bar-btn btn-fav <%= item.is_liked ? 'is-favorited' : '' %>"
+                                                title="Favorite"
+                                                onclick="toggleLike(this, <%= item.tmdb_id %>, '<%= item.media_type %>')">
+                                                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                                                    <path
+                                                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                </div>
+                            </div>
+                            <% }); %>
+                                <% } else { %>
+                                    <div class="empty-watchlist-msg"
+                                        style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #718096;">
+                                        <h2>Your watchlist is empty.</h2>
+                                        <p>Start adding movies and series to keep track of what you want to watch!</p>
+                                        <a href="/discover" class="btn btn-primary" style="margin-top: 15px;">Discover
+                                            Content</a>
+                                    </div>
+                                    <% } %>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%- include("partials/footer.ejs") %>
+        <%- include("partials/modals/search-modal.ejs") %>
+            <%- include("partials/modals/log-modal.ejs") %>
+
+                <script src="/js/main.js"></script>
+                <script src="/js/modals.js"></script>
+                <script src="/js/pages/watchlist.js"></script>
+</body>
+
+</html>

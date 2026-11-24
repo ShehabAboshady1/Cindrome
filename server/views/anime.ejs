@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cindrome - Anime</title>
+    <link rel="icon" type="image/png" href="assets/logos/cindrome-logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/hero.css">
+    <link rel="stylesheet" href="css/cards.css">
+    <link rel="stylesheet" href="css/carousel.css">
+    <link rel="stylesheet" href="css/list.css">
+    <link rel="stylesheet" href="css/modals.css">
+</head>
+
+<body class="<%= locals.user ? 'logged-in' : 'logged-out' %>">
+    <header>
+        <%- include("partials/navbar.ejs") %>
+    </header>
+
+    <main>
+        <section class="hero-section"
+            style="background-image: url('<%= heroAnime && heroAnime.backdrop ? heroAnime.backdrop : 'assets/backdrops/backdrop-onepiece.webp' %>');">
+            <div class="hero-overlay"></div>
+            <div class="hero-container">
+                <div class="hero-content">
+                    <div class="hero-tags">
+                        <span class="badge trending-badge">🔥 Trending #1</span>
+                        <span class="badge category-badge">Anime Series</span>
+                    </div>
+                    <h1 class="hero-title">
+                        <%= heroAnime ? heroAnime.title : 'One Piece' %>
+                    </h1>
+                    <div class="hero-meta">
+                        <span class="rating">⭐ <%= heroAnime ? heroAnime.score : '9.0' %> <i>/ 10</i></span>
+                        <span class="meta-dot">•</span>
+                        <span class="duration">
+                            <%= heroAnime ? heroAnime.episodes : '1100+ Episodes' %>
+                        </span>
+                        <span class="meta-dot">•</span>
+                        <span class="year">
+                            <%= heroAnime ? heroAnime.year : '1999' %>
+                        </span>
+                        <span class="meta-dot">•</span>
+                        <span class="genre">
+                            <%= heroAnime ? heroAnime.genres : 'Action, Adventure, Fantasy' %>
+                        </span>
+                    </div>
+                    <p class="hero-description">
+                        <%= heroAnime ? heroAnime.overview : 'Monkey D. Luffy sets sail with his pirate crew...' %>
+                    </p>
+                    <div class="hero-actions">
+                        <a href="/details?id=<%= heroAnime ? heroAnime.id : '' %>&type=tv" class="btn btn-primary">
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                            View Details
+                        </a>
+
+                        <button type="button"
+                            class="btn btn-secondary hero-watchlist-btn <%= heroAnime && locals.watchlistMap && locals.watchlistMap.includes(heroAnime.id.toString()) ? 'added' : '' %>"
+                            onclick="toggleWatchlist(this, <%= heroAnime ? heroAnime.id : '' %>, '<%= heroAnime ? heroAnime.mediaType : 'anime' %>')">
+                            <span class="default-content">Add to Watchlist</span>
+                            <span class="added-content"><i class="fa-solid fa-minus" style="margin-right: 6px;"></i>
+                                Added</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="carousel-section">
+            <div class="carousel-header">
+                <h2 class="carousel-title">🏆 Top Rated & Fan Favorites</h2>
+                <div class="carousel-controls">
+                    <button class="carousel-btn" aria-label="Previous">&#10094;</button>
+                    <button class="carousel-btn" aria-label="Next">&#10095;</button>
+                </div>
+            </div>
+            <div class="carousel-track">
+                <% if (topRatedAnime && topRatedAnime.length> 0) { %>
+                    <% topRatedAnime.forEach(item=> { %>
+                        <div class="content-card">
+                            <img src="<%= item.poster %>" alt="<%= item.title %>" class="card-poster">
+                            <div class="card-overlay">
+                                <div class="card-top-row">
+                                    <span class="type-badge">
+                                        <%= item.type %>
+                                    </span>
+                                    <div class="rating-box">
+                                        <span class="rating-label">IMDB</span>
+                                        <span class="rating-score">⭐ <%= item.score %></span>
+                                    </div>
+                                </div>
+                                <div class="card-bottom-content">
+                                    <div class="title-row">
+                                        <h3 class="card-title" title="<%= item.title %>">
+                                            <%= item.title %>
+                                        </h3>
+                                        <span class="age-badge">
+                                            <%= item.ageBadge %>
+                                        </span>
+                                    </div>
+                                    <div class="meta-row">
+                                        <span>
+                                            <%= item.subtitle %>
+                                        </span>
+                                    </div>
+                                    <div class="card-actions">
+                                        <a href="/details?id=<%= item.id %>&type=anime" class="btn-details">Details</a>
+                                        <button
+                                            class="btn-watchlist <%= locals.watchlistMap && locals.watchlistMap.includes(item.id.toString()) ? 'added' : '' %>"
+                                            title="<%= locals.watchlistMap && locals.watchlistMap.includes(item.id.toString()) ? 'Remove from Watchlist' : 'Toggle Watchlist' %>"
+                                            onclick="toggleWatchlist(this, <%= item.id %>, '<%= item.mediaType %>')">
+                                            <span class="icon-plus">+</span>
+                                            <span class="icon-minus">-</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <% }); %>
+                            <% } else { %>
+                                <p style="color: #aaa; padding: 20px;">Could not load anime at this time.</p>
+                                <% } %>
+            </div>
+        </section>
+
+        <section class="carousel-section">
+            <div class="carousel-header">
+                <h2 class="carousel-title">⚡ Sports & High-Stakes Competition</h2>
+                <div class="carousel-controls">
+                    <button class="carousel-btn" aria-label="Previous">&#10094;</button>
+                    <button class="carousel-btn" aria-label="Next">&#10095;</button>
+                </div>
+            </div>
+            <div class="carousel-track">
+                <% if (actionAnime && actionAnime.length> 0) { %>
+                    <% actionAnime.forEach(item=> { %>
+                        <div class="content-card">
+                            <img src="<%= item.poster %>" alt="<%= item.title %>" class="card-poster">
+                            <div class="card-overlay">
+                                <div class="card-top-row">
+                                    <span class="type-badge">
+                                        <%= item.type %>
+                                    </span>
+                                    <div class="rating-box">
+                                        <span class="rating-label">IMDB</span>
+                                        <span class="rating-score">⭐ <%= item.score %></span>
+                                    </div>
+                                </div>
+                                <div class="card-bottom-content">
+                                    <div class="title-row">
+                                        <h3 class="card-title" title="<%= item.title %>">
+                                            <%= item.title %>
+                                        </h3>
+                                        <span class="age-badge">
+                                            <%= item.ageBadge %>
+                                        </span>
+                                    </div>
+                                    <div class="meta-row">
+                                        <span>
+                                            <%= item.subtitle %>
+                                        </span>
+                                    </div>
+                                    <div class="card-actions">
+                                        <a href="/details?id=<%= item.id %>&type=tv" class="btn-details">Details</a>
+                                        <button
+                                            class="btn-watchlist <%= locals.watchlistMap && locals.watchlistMap.includes(item.id.toString()) ? 'added' : '' %>"
+                                            title="<%= locals.watchlistMap && locals.watchlistMap.includes(item.id.toString()) ? 'Remove from Watchlist' : 'Toggle Watchlist' %>"
+                                            onclick="toggleWatchlist(this, <%= item.id %>, '<%= item.mediaType %>')">
+                                            <span class="icon-plus">+</span>
+                                            <span class="icon-minus">-</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <% }); %>
+                            <% } %>
+            </div>
+        </section>
+
+        <section class="carousel-section">
+            <div class="carousel-header">
+                <h2 class="carousel-title">🧠 Mind Games, Mystery & Dark Fantasy</h2>
+                <div class="carousel-controls">
+                    <button class="carousel-btn" aria-label="Previous">&#10094;</button>
+                    <button class="carousel-btn" aria-label="Next">&#10095;</button>
+                </div>
+            </div>
+            <div class="carousel-track">
+                <% if (mysteryAnime && mysteryAnime.length> 0) { %>
+                    <% mysteryAnime.forEach(item=> { %>
+                        <div class="content-card">
+                            <img src="<%= item.poster %>" alt="<%= item.title %>" class="card-poster">
+                            <div class="card-overlay">
+                                <div class="card-top-row">
+                                    <span class="type-badge">
+                                        <%= item.type %>
+                                    </span>
+                                    <div class="rating-box">
+                                        <span class="rating-label">IMDB</span>
+                                        <span class="rating-score">⭐ <%= item.score %></span>
+                                    </div>
+                                </div>
+                                <div class="card-bottom-content">
+                                    <div class="title-row">
+                                        <h3 class="card-title" title="<%= item.title %>">
+                                            <%= item.title %>
+                                        </h3>
+                                        <span class="age-badge">
+                                            <%= item.ageBadge %>
+                                        </span>
+                                    </div>
+                                    <div class="meta-row">
+                                        <span>
+                                            <%= item.subtitle %>
+                                        </span>
+                                    </div>
+                                    <div class="card-actions">
+                                        <a href="/details?id=<%= item.id %>&type=tv" class="btn-details">Details</a>
+                                        <button
+                                            class="btn-watchlist <%= locals.watchlistMap && locals.watchlistMap.includes(item.id.toString()) ? 'added' : '' %>"
+                                            title="<%= locals.watchlistMap && locals.watchlistMap.includes(item.id.toString()) ? 'Remove from Watchlist' : 'Toggle Watchlist' %>"
+                                            onclick="toggleWatchlist(this, <%= item.id %>, '<%= item.mediaType %>')">
+                                            <span class="icon-plus">+</span>
+                                            <span class="icon-minus">-</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <% }); %>
+                            <% } %>
+            </div>
+        </section>
+    </main>
+
+    <%- include("partials/footer.ejs") %>
+        <%- include("partials/modals/search-modal.ejs") %>
+            <%- include("partials/modals/log-modal.ejs") %>
+
+                <script src="/js/main.js"></script>
+                <script src="/js/modals.js"></script>
+                <script src="/js/carousel.js"></script>
+</body>
+
+</html>

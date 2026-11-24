@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cindrome - Discover</title>
+    <link rel="icon" type="image/png" href="assets/logos/cindrome-logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/hero.css">
+    <link rel="stylesheet" href="css/lists-carousel.css">
+    <link rel="stylesheet" href="css/carousel.css">
+    <link rel="stylesheet" href="css/pages/discover.css">
+    <link rel="stylesheet" href="css/modals.css">
+    <link rel="stylesheet" href="css/cards.css">
+</head>
+
+<body class="<%= locals.user ? 'logged-in' : 'logged-out' %>">
+    <header>
+        <%- include("partials/navbar.ejs") %>
+    </header>
+
+    <section class="discover-header-section">
+        <h1 class="discover-title">Discover</h1>
+        <p class="discover-subtitle">Explore thousands of movies, anime, and series all in one place.</p>
+    </section>
+
+    <section class="discover-filter-section" aria-label="Content Filters">
+        <form class="filter-bar-container" role="search" onsubmit="return false;">
+            <div class="filter-search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="discoverSearchInput" placeholder="Search title..." aria-label="Search title"
+                    autocomplete="off" spellcheck="false">
+            </div>
+
+            <div class="filter-v-divider" role="separator"></div>
+
+            <fieldset class="type-selector" id="discoverTypeSelector" aria-label="Content Type">
+                <button class="type-pill active" type="button" data-type="all">All</button>
+                <button class="type-pill" type="button" data-type="anime">Anime</button>
+                <button class="type-pill" type="button" data-type="movie">Movies</button>
+                <button class="type-pill" type="button" data-type="tv">Series</button>
+            </fieldset>
+
+            <div class="filter-v-divider" role="separator"></div>
+
+            <div class="dropdowns-group">
+                <details class="css-dropdown" id="discoverGenreDropdown">
+                    <summary class="dropdown-selected">
+                        <span id="discoverGenreText">Genre</span>
+                        <span class="dropdown-arrow" aria-hidden="true">▼</span>
+                    </summary>
+                    <ul class="dropdown-list">
+                        <li class="dropdown-item" data-value="all">All Genres</li>
+                        <li class="dropdown-item" data-value="action">Action</li>
+                        <li class="dropdown-item" data-value="scifi">Sci-Fi</li>
+                        <li class="dropdown-item" data-value="drama">Drama</li>
+                        <li class="dropdown-item" data-value="mystery">Mystery</li>
+                        <li class="dropdown-item" data-value="fantasy">Fantasy</li>
+                        <li class="dropdown-item" data-value="comedy">Comedy</li>
+                    </ul>
+                </details>
+
+                <details class="css-dropdown" id="discoverRatingDropdown">
+                    <summary class="dropdown-selected">
+                        <span id="discoverRatingText">Rating</span>
+                        <span class="dropdown-arrow" aria-hidden="true">▼</span>
+                    </summary>
+                    <ul class="dropdown-list">
+                        <li class="dropdown-item" data-value="0">All Ratings</li>
+                        <li class="dropdown-item" data-value="8.5">★ 8.5+</li>
+                        <li class="dropdown-item" data-value="8.0">★ 8.0+</li>
+                        <li class="dropdown-item" data-value="7.0">★ 7.0+</li>
+                        <li class="dropdown-item" data-value="6.0">★ 6.0+</li>
+                        <li class="dropdown-item" data-value="5.0">★ 5.0+</li>
+                    </ul>
+                </details>
+
+                <details class="css-dropdown" id="discoverSortDropdown">
+                    <summary class="dropdown-selected">
+                        <span id="discoverSortText">Sort By</span>
+                        <span class="dropdown-arrow" aria-hidden="true">▼</span>
+                    </summary>
+                    <ul class="dropdown-list">
+                        <li class="dropdown-item" data-value="popular">Popular</li>
+                        <li class="dropdown-item" data-value="newest">Newest</li>
+                        <li class="dropdown-item" data-value="rating">Rating</li>
+                    </ul>
+                </details>
+
+                <details class="css-dropdown" id="discoverYearDropdown">
+                    <summary class="dropdown-selected">
+                        <span id="discoverYearText">Year</span>
+                        <span class="dropdown-arrow" aria-hidden="true">▼</span>
+                    </summary>
+                    <ul class="dropdown-list">
+                        <li class="dropdown-item" data-value="all">All Years</li>
+                        <li class="dropdown-item" data-value="2026">2026</li>
+                        <li class="dropdown-item" data-value="2025">2025</li>
+                        <li class="dropdown-item" data-value="2024">2024</li>
+                        <li class="dropdown-item" data-value="2023">2023</li>
+                        <li class="dropdown-item" data-value="2022">2022</li>
+                        <li class="dropdown-item" data-value="2021">2021</li>
+                        <li class="dropdown-item" data-value="2020">2020</li>
+                        <li class="dropdown-item" data-value="2010s">2010s</li>
+                        <li class="dropdown-item" data-value="2000s">2000s</li>
+                        <li class="dropdown-item" data-value="90s">90s</li>
+                        <li class="dropdown-item" data-value="classics">Classics</li>
+                    </ul>
+                </details>
+            </div>
+
+            <button class="reset-filter-btn" id="discoverResetBtn" type="button" aria-label="Reset Filters"
+                title="Reset Filters">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                    <path d="M3 3v5h5"></path>
+                </svg>
+            </button>
+        </form>
+    </section>
+
+    <main class="discover-grid-section">
+        <div class="discover-grid-container">
+            <div class="grid-header">
+                <h2 class="grid-title" id="discoverGridTitle">All Content</h2>
+            </div>
+
+            <div class="cards-grid" id="discoverCardsGrid"></div>
+            <div id="discoverStatusMsg"
+                style="display: none; text-align: center; padding: 40px; color: rgba(241, 227, 200, 0.5);"></div>
+        </div>
+
+        <div class="pagination-section">
+            <nav class="pagination-container" id="discoverPagination" aria-label="Page navigation"></nav>
+        </div>
+    </main>
+
+    <template id="discoverCardTemplate">
+        <article class="content-card">
+            <img src="" alt="" class="card-poster" loading="lazy">
+            <div class="card-overlay">
+                <div class="card-top-row">
+                    <span class="type-badge"></span>
+                    <div class="rating-box">
+                        <span class="rating-label">TMDB</span>
+                        <span class="rating-score"></span>
+                    </div>
+                </div>
+                <div class="card-bottom-content">
+                    <div class="title-row">
+                        <h3 class="card-title"></h3>
+                    </div>
+                    <div class="meta-row"></div>
+                    <div class="card-actions">
+                        <a href="" class="btn-details">Details</a>
+                        <button type="button" class="btn-watchlist" title="Add to Watchlist">
+                            <i class="fa-solid fa-plus icon-plus"></i>
+                            <i class="fa-solid fa-minus icon-minus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </template>
+
+    <%- include("partials/footer.ejs") %>
+        <%- include("partials/modals/search-modal.ejs") %>
+            <%- include("partials/modals/log-modal.ejs") %>
+
+                <script src="/js/modals.js"></script>
+                <script src="/js/pages/discover-page.js"></script>
+                <script src="/js/main.js"></script>
+</body>
+
+</html>
